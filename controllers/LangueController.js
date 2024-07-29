@@ -8,7 +8,6 @@ const addLanguageToUser = async (req, res) => {
         const { nom } = req.body;
         const newLanguage = new Langue({ nom ,userId });
         await newLanguage.save();
-        await User.findByIdAndUpdate(userId, { $push: { languages: newLanguage._id } });
         res.status(201).json({ message: 'Language added to user successfully', language: newLanguage });
     } catch (error) {
         console.error(error);

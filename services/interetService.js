@@ -2,57 +2,57 @@ const axios = require('axios');
 
 const API_URL = 'http://localhost:5000/api'; // Mettez l'URL de votre API
 
-// Ajouter une compétence à un utilisateur
-const addCompetenceToUser = async (userId, competenceData) => {
+// Ajouter un interest à un utilisateur
+const addInterestToUser = async (userId, interestData) => {
     try {
-        const response = await axios.post(`${API_URL}/users/${userId}/competences`, competenceData);
+        const response = await axios.post(`${API_URL}/users/${userId}/interests`, interestData);
         return response.data;
     } catch (error) {
         console.error(error);
-        throw new Error('Error adding competence to user');
+        throw new Error('Error adding interest to user');
     }
 };
 
-// Obtenir les compétences d'un utilisateur
-const getCompetencesByUser = async (userId) => {
+// Obtenir les interests d'un utilisateur
+const getInterestsByUser = async (userId) => {
     try {
-        const response = await axios.get(`${API_URL}/users/${userId}/competences`);
+        const response = await axios.get(`${API_URL}/users/${userId}/interests`);
         return response.data;
     } catch (error) {
         console.error(error);
-        throw new Error('Error getting competences of user');
+        throw new Error('Error getting interests of user');
     }
 };
 
-// Mettre à jour une compétence
-const updateCompetence = async (userId, competenceId, competenceData) => {
+// Mettre à jour un interest
+const updateInterest = async (userId, interestId, interestData) => {
     try {
-        const response = await axios.put(`${API_URL}/users/${userId}/competences/${competenceId}`, competenceData);
+        const response = await axios.put(`${API_URL}/users/${userId}/interests/${interestId}`, interestData);
         return response.data;
     } catch (error) {
         console.error(error);
-        throw new Error('Error updating competence');
+        throw new Error('Error interest competence');
     }
 };
 
 // Supprimer une compétence
-const deleteCompetence = async (userId, competenceId) => {
+const deleteInterest = async (userId, interestId) => {
     try {
-        const response = await axios.delete(`${API_URL}/users/${userId}/competences/${competenceId}`);
+        const response = await axios.delete(`${API_URL}/users/${userId}/interests/${interestId}`);
         return response.data;
     } catch (error) {
         console.error(error);
-        throw new Error('Error deleting competence');
+        throw new Error('Error deleting interest');
     }
 };
-const getCompetenceById = async (competenceId) => {
+const getInterestById = async (interestId) => {
     try {
-        const response = await axios.get(`${API_URL}/competences/${competenceId}`);
+        const response = await axios.get(`${API_URL}/interests/${interestId}`);
         return response.data;
     } catch (error) {
         console.error(error);
-        throw new Error('Error getting competence by ID');
+        throw new Error('Error getting interest by ID');
     }
 };
 
-module.exports = { addCompetenceToUser, getCompetencesByUser, updateCompetence, deleteCompetence ,getCompetenceById};
+module.exports = { addInterestToUser, getInterestsByUser, updateInterest, deleteInterest ,getInterestById};

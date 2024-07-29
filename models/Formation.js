@@ -6,7 +6,7 @@ const formationSchema = new mongoose.Schema({
     etablissement: { type: String, required: true },
     dateDebut: { type: Date, required: true },
     dateFin: { type: Date },
-    enCours: { type: Boolean, default: false },
+    enCours: { type: Boolean },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 

@@ -1,71 +1,71 @@
 const User = require("../models/User");
-const Interet = require("../models/Interet");
+const Interest = require("../models/Interest");
 
-const addInteretToUser = async (req, res) => {
+const addInterestToUser = async (req, res) => {
     try {
         const { userId } = req.params;
         const { nom } = req.body;
-        const newInteret = new Interet({ nom ,userId });
-        await newInteret.save();
-        await User.findByIdAndUpdate(userId, { $push: { interets: newInteret._id } });
-        res.status(201).json({ message: 'Interet added to user successfully', Interet: newInteret });
+        const newInterest = new Interest({ nom ,userId });
+        await newInterest.save();
+        await User.findByIdAndUpdate(userId, { $push: { interests: newInterest._id } });
+        res.status(201).json({ message: 'Interest added to user successfully', Interest: newInterest });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error adding Interet to user' });
+        res.status(500).json({ error: 'Error adding Interest to user' });
     }
 };
 
-const updateInteret = async (req, res) => {
+const updateInterest = async (req, res) => {
     try {
-        const { userId, InteretId } = req.params;
+        const { userId, InterestId } = req.params;
         const { nom } = req.body;
-        const updatedInteret = await Interet.findByIdAndUpdate(InteretId, { nom }, { new: true });
-        if (!updatedInteret) {
-            return res.status(404).json({ error: 'Interet not found' });
+        const updatedInterest = await Interest.findByIdAndUpdate(InterestId, { nom }, { new: true });
+        if (!updatedInterest) {
+            return res.status(404).json({ error: 'Interest not found' });
         }
-        res.json({ message: 'Interet updated successfully', Interet: updatedInteret });
+        res.json({ message: 'Interest updated successfully', Interest: updatedInterest });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error updating Interet' });
+        res.status(500).json({ error: 'Error updating Interest' });
     }
 };
 
-const deleteInteret = async (req, res) => {
+const deleteInterest = async (req, res) => {
     try {
-        const { userId, InteretId } = req.params;
-        await User.findByIdAndUpdate(userId, { $pull: { Interets: InteretId } });
-        await Interet.findByIdAndDelete(InteretId);
-        res.json({ message: 'Interet deleted successfully' });
+        const { userId, interestId } = req.params;
+        await User.findByIdAndUpdate(userId, { $pull: { interests: interestId } });
+        await Interest.findByIdAndDelete(interestId);
+        res.json({ message: 'Interest deleted successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error deleting Interet' });
+        res.status(500).json({ error: 'Error deleting Interest' });
     }
 };
 
-const getInteretsByUser = async (req, res) => {
+const getInterestsByUser = async (req, res) => {
     try {
         const userId = req.params.userId;
-        const Interets = await Interet.find({ userId: userId });
-        res.json(Interets);
+        const Interests = await Interest.find({ userId: userId });
+        res.json(Interests);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error getting Interets for user' });
+        res.status(500).json({ error: 'Error getting Interests for user' });
     }
 };
 
-const getInteretById = async (req, res) => {
+const getInterestById = async (req, res) => {
     try {
-        const Interet = await Interet.findById(req.params.id);
-        if (!Interet) {
-            return res.status(404).json({ error: 'Interet not found' });
+        const Interest = await Interest.findById(req.params.id);
+        if (!Interest) {
+            return res.status(404).json({ error: 'Interest not found' });
         }
-        res.json(Interet);
+        res.json(Interest);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error getting Interet by ID' });
+        res.status(500).json({ error: 'Error getting Interest by ID' });
     }
 };
 
 
 
-module.exports = { addInteretToUser ,deleteInteret,updateInteret,getInteretsByUser,getInteretById };
+module.exports = { addInterestToUser ,deleteInterest,updateInterest,getInterestsByUser,getInterestById };

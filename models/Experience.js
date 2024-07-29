@@ -7,7 +7,7 @@ const experienceSchema = new mongoose.Schema({
     description: { type: String },
     dateDebut: { type: Date, required: true },
     dateFin: { type: Date },
-    disponibilite: { type: Boolean, default: true },
+    disponibilite: { type: Boolean },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 
