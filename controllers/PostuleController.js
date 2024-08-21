@@ -23,11 +23,11 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 const createPostule = async (req, res) => {
     try {
-        const { userId, offreId, description,dateCreation } = req.body;
+        const { userId, offreId, description,dateCreation,score} = req.body;
         const cvPath = req.files['cv'][0].path;
         const lettreMotivationPath = req.files['lettreMotivation'][0].path;
 
-        const postule = new Postule({ cv: cvPath, lettreMotivation: lettreMotivationPath, userId, offreId, description,dateCreation});
+        const postule = new Postule({ cv: cvPath, lettreMotivation: lettreMotivationPath, userId, offreId, description,dateCreation,score});
         await postule.save();
 
         res.status(201).json(postule);

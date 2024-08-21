@@ -7,7 +7,9 @@ const postuleSchema = new mongoose.Schema({
     offreId: { type: mongoose.Schema.Types.ObjectId, ref: 'Offre', required: true },
     description: { type: String },
     dateCreation:{type:Date},
-    etat: { type: Boolean, default: false }
+    etat: { type: Boolean, default: false },
+    score: { type: Number }
+
 });
 
 const Postule = mongoose.model('Postule', postuleSchema);

@@ -1,3 +1,5 @@
+require('dotenv').config(); // Add this at the top of your server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -9,15 +11,19 @@ const certificatRoutes = require('./routes/certificatRoutes');
 const competenceRoutes = require('./routes/competenceRoutes');
 const interetRoutes = require('./routes/interetRoutes');
 const offreRoutes = require('./routes/offreRoutes');
+const stepRoutes = require('./routes/StepRoutes');
+
+const workflowRoutes = require('./routes/workflowRoutes');
 const postuleRoutes = require('./routes/postuleRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const secteurRoutes = require('./routes/secteurRoutes');
 const typeEmploiRoutes = require('./routes/typeEmploiRoutes');
 const typeExperienceRoutes = require('./routes/typeExperienceRoutes');
-
 const niveauEtudeRoutes = require('./routes/niveauEtudeRoutes');
-
-
+const processusRoutes = require('./routes/processusRoutes');
+const conditionsRoutes = require('./routes/conditionRoutes');
+const genresRoutes = require('./routes/GenreRoutes');
+const regionsRoutes = require('./routes/RegionRoutes');
 
 
 
@@ -36,12 +42,18 @@ app.use('/api/certificats', certificatRoutes);
 app.use('/api/competences', competenceRoutes);
 app.use('/api/interests', interetRoutes);
 app.use('/api/offres', offreRoutes);
+app.use('/api/steps', stepRoutes);
+app.use('/api/workflows', workflowRoutes);
 app.use('/api/postules', postuleRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/secteurs', secteurRoutes);
 app.use('/api/typeEmplois', typeEmploiRoutes);
 app.use('/api/typeExperiences', typeExperienceRoutes);
 app.use('/api/niveauEtudes', niveauEtudeRoutes);
+app.use('/api/processus', processusRoutes);
+app.use('/api/conditions', conditionsRoutes);
+app.use('/api/genres', genresRoutes);
+app.use('/api/regions', regionsRoutes);
 
 app.use('/uploads', express.static('uploads'));
 
