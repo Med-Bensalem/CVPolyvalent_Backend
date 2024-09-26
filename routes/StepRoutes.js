@@ -8,6 +8,9 @@ router.post('/steps', stepController.addStep);
 // Route to get steps by workflow_id
 router.get('/steps/workflow/:workflowId', stepController.getStepsByWorkflowId);
 
+// Route to get steps entreprise by workflow_id
+router.get('/steps/workflow/entreprise/:workflowId', stepController.getStepsEntrepriseByWorkflowId);
+
 // Route to get a step by its ID
 router.get('/steps/:id', stepController.getStepById);
 

@@ -7,8 +7,8 @@ const postuleSchema = new mongoose.Schema({
     offreId: { type: mongoose.Schema.Types.ObjectId, ref: 'Offre', required: true },
     description: { type: String },
     dateCreation:{type:Date},
-    etat: { type: Boolean, default: false },
-    score: { type: Number }
+    score: { type: Number },
+    status: { type: Number, default: 0 }
 
 });
 

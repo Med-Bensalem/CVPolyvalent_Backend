@@ -1,6 +1,9 @@
 const Postule = require("../models/Postule");
 const multer = require('multer');
 const Langue = require("../models/Langue");
+const User = require("../models/User");
+const {sendEmail} = require("../services/emailService");
+const Offre = require("../models/Offre");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -58,21 +61,55 @@ const getPostuleByOffer = async (req, res) => {
         res.status(500).json({ error: 'Error getting postules for offre' });
     }
 };
-const changePostuleState = async (req, res) => {
+
+const updatePostuleStatus = async (req, res) => {
+    const { postuleId, status } = req.body;
+
     try {
-        const postId = req.params.postId;
-        const postule = await Postule.findById(postId);
+        // Find the postule by ID and update its status
+        const postule = await Postule.findByIdAndUpdate(postuleId, { status }, { new: true });
+
         if (!postule) {
-            return res.status(404).json({ message: "Postule not found" });
+            return res.status(404).json({ message: 'Candidature non trouvée' });
         }
-        postule.etat = true;
-        await postule.save();
-        res.json({ message: "Postule state updated successfully" });
+
+        res.status(200).json({ message: 'Statut mis à jour avec succès', postule });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error updating postule state' });
+        res.status(500).json({ message: 'Erreur lors de la mise à jour du statut', error });
     }
 };
 
+const sendStatusChangeEmails = async (req, res) => {
+    try {
+        const { postuleIds } = req.body; // Expect an array of postule IDs
+        const postules = await Postule.find({ _id: { $in: postuleIds } });
+
+        for (const postule of postules) {
+
+            const user = await User.findById(postule.userId);
+            const offre = await Offre.findById(postule.offreId);
+
+            if (!user || !user.email) {
+                return res.status(404).json({ message: 'User not found or no email available' });
+            }
+
+            // Customize the email based on the postule status
+            const subject = `Changement du status de votre candidature`;
+            const text = `Bonjour, votre candidature pour l'offre ${offre.titre} a été mise à jour.`;
+
+            await sendEmail(user.email, subject, text); // Assuming userId is the email
+        }
+
+        res.status(200).json({ message: 'Emails envoyés avec succès' });
+    } catch (error) {
+        console.error('Error sending emails:', error);
+        res.status(500).json({ message: 'Erreur lors de l\'envoi des emails', error });
+    }
+};
+
+
+
+
 // Exportez également la variable `upload`
-module.exports = { createPostule, upload,getPostuleByUser,getPostuleByOffer,changePostuleState };
+module.exports = { createPostule, upload,getPostuleByUser,getPostuleByOffer ,updatePostuleStatus,sendStatusChangeEmails};

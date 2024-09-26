@@ -12,7 +12,8 @@ const offreSchema = new mongoose.Schema({
     description: { type: String ,required: true},
     exigences: { type: String ,required: true},
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    dateCreation:{type:Date}
+    dateCreation:{type:Date},
+    idDomaine: { type: String,required: true },
 });
 
 const Offre = mongoose.model('Offre', offreSchema);

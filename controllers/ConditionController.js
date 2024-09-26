@@ -1,10 +1,13 @@
 const Condition = require("../models/Condition");
 const Contact = require("../models/Contact");
+const {findOne} = require("../models/workflow");
+const Workflow = require("../models/workflow");
+const Step = require("../models/Step");
 
 const addCondition = async (req, res) => {
     try {
-        const { offreId, description } = req.body;
-        const newCond = new Condition({ offreId, description });
+        const { offreId, genre, niveauxacadem, lieu, score } = req.body;
+        const newCond = new Condition({ offreId, genre, niveauxacadem, lieu, score });
         await newCond.save();
         res.status(201).json({ message: 'Condition added successfully', Condition: newCond });
     } catch (error) {
@@ -34,26 +37,61 @@ const getConditionById = async (req, res) => {
 // Modifier un step
 const updateCondition = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { description } = req.body;
+        const { offreId } = req.params;
+        const { genre, niveauxacadem, lieu, score } = req.body;
 
-        // Find the step by its ID and update it
-        const updatedCond = await Condition.findByIdAndUpdate(
-            id,
-            {description },
-            { new: true } // Return the updated document
-        );
+        // Check if the condition exists
+        const existingCondition = await Condition.findOne({ offreId });
 
-        if (!updatedCond) {
-            return res.status(404).json({ error: 'Condition not found' });
+        if (!existingCondition) {
+            // Condition not found, so we add a step to the workflow
+
+            // Find the workflow associated with the offer ID
+            const workflow = await Workflow.findOne({ offreId });
+
+            if (!workflow) {
+                return res.status(404).json({ error: 'Workflow not found' });
+            }
+
+            // Add a new step to the workflow
+            const step0 = new Step({
+                workflow_id: workflow._id,  // Use the _id from the newly created workflow
+                step_order: 1,
+                titre: "Préselection",
+                stepType:'PRESELECTION'
+            });
+
+            await step0.save();
+
+            // Now create a new condition since it does not exist
+            const newCondition = new Condition({ offreId, genre, niveauxacadem, lieu, score });
+            await newCondition.save();
+
+            return res.status(201).json({
+                message: 'Condition and workflow step added successfully',
+                Condition: newCondition,
+                workflow
+            });
         }
 
-        res.status(200).json({ message: 'Condition updated successfully', Condition: updatedCond });
+        // If the condition exists, update it
+        const updatedCondition = await Condition.findOneAndUpdate(
+            { offreId }, // Filter to find the condition by offreId
+            { genre, niveauxacadem, lieu, score },
+            { new: true, runValidators: true } // Return the updated document, and run schema validators
+        );
+
+        res.status(200).json({
+            message: 'Condition updated successfully',
+            Condition: updatedCondition
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error updating condition' });
+        res.status(500).json({ error: 'Error updating condition or workflow' });
     }
 };
+
+
 
 // Supprimer un step
 const deleteCondition = async (req, res) => {

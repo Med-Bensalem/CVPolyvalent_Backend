@@ -24,6 +24,17 @@ const getStepsByWorkflowId = async (workflowId) => {
     }
 };
 
+const getStepsEntrepriseByWorkflowId = async (workflowId) => {
+    try {
+        const response = await axios.get(`${API_URL}/steps/workflow/entreprise/${workflowId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error getting steps by workflowId:', error.response?.data || error.message);
+        throw new Error('Error getting steps');
+    }
+};
+
+
 // Obtenir un step par ID
 const getStepById = async (id) => {
     try {
@@ -57,4 +68,4 @@ const deleteStep = async (id) => {
     }
 };
 
-module.exports = { createStep, getStepsByWorkflowId, getStepById, updateStep, deleteStep };
+module.exports = { createStep, getStepsByWorkflowId, getStepById, updateStep, deleteStep ,getStepsEntrepriseByWorkflowId};

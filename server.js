@@ -20,10 +20,15 @@ const secteurRoutes = require('./routes/secteurRoutes');
 const typeEmploiRoutes = require('./routes/typeEmploiRoutes');
 const typeExperienceRoutes = require('./routes/typeExperienceRoutes');
 const niveauEtudeRoutes = require('./routes/niveauEtudeRoutes');
-const processusRoutes = require('./routes/processusRoutes');
 const conditionsRoutes = require('./routes/conditionRoutes');
 const genresRoutes = require('./routes/GenreRoutes');
 const regionsRoutes = require('./routes/RegionRoutes');
+const scoresRoutes = require('./routes/ScoreRoutes');
+const testsRoutes = require('./routes/testRoutes');
+const domainesRoutes = require('./routes/domaineRoutes');
+
+
+
 
 
 
@@ -50,10 +55,13 @@ app.use('/api/secteurs', secteurRoutes);
 app.use('/api/typeEmplois', typeEmploiRoutes);
 app.use('/api/typeExperiences', typeExperienceRoutes);
 app.use('/api/niveauEtudes', niveauEtudeRoutes);
-app.use('/api/processus', processusRoutes);
 app.use('/api/conditions', conditionsRoutes);
 app.use('/api/genres', genresRoutes);
 app.use('/api/regions', regionsRoutes);
+app.use('/api/scores', scoresRoutes);
+app.use('/api/tests', testsRoutes);
+app.use('/api/domaines', domainesRoutes);
+
 
 app.use('/uploads', express.static('uploads'));
 

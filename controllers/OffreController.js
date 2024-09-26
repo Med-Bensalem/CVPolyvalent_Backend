@@ -1,18 +1,77 @@
 const Offre = require("../models/Offre");
 const User = require("../models/User");
+const Workflow = require("../models/workflow");
+const Step = require("../models/Step");
 
 const addOffreToUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const { titre, nbPoste, typeEmploi, experience, remuneration, langue, niveauEtude, dateExpiration, description, exigences,dateCreation } = req.body;
-        const newOffre = new Offre({ titre, nbPoste, typeEmploi, experience, remuneration, langue, niveauEtude, dateExpiration, description, exigences, userId,dateCreation });
+        const {
+            titre,
+            nbPoste,
+            typeEmploi,
+            experience,
+            remuneration,
+            langue,
+            niveauEtude,
+            dateExpiration,
+            description,
+            exigences,
+            dateCreation,
+            idDomaine
+        } = req.body;
+
+        // Step 1: Create a new offer
+        const newOffre = new Offre({
+            titre,
+            nbPoste,
+            typeEmploi,
+            experience,
+            remuneration,
+            langue,
+            niveauEtude,
+            dateExpiration,
+            description,
+            exigences,
+            userId,
+            dateCreation,
+            idDomaine
+        });
+
         await newOffre.save();
-        res.status(201).json({ message: 'Offre added successfully', offre: newOffre });
+
+        // Step 2: Create a workflow associated with the new offer
+        const newWorkflow = new Workflow({
+            offreId: newOffre._id,  // Use the _id from the newly created offer
+        });
+
+        await newWorkflow.save();
+
+        // Step 3: Create the initial step (step 0)
+        const step0 = new Step({
+            workflow_id: newWorkflow._id,  // Use the _id from the newly created workflow
+            step_order: 0,
+            titre: "En Attente" ,
+            stepType: "PENDING"// Default title for step 0
+        });
+
+        await step0.save();
+
+
+
+        res.status(201).json({
+            message: 'Offre and Workflow added successfully',
+            offre: newOffre,
+            workflow: newWorkflow,
+            offreId: newOffre._id,
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error adding Offre' });
+        res.status(500).json({ error: 'Error adding Offre or Workflow' });
     }
 };
+
+
 
 const getOffresByUser = async (req, res) => {
     try {
@@ -44,8 +103,8 @@ const updateOffre = async (req, res) => {
     try {
         const userId = req.params.userId;
         const offreId = req.params.offreId;
-        const { titre, nbPoste, typeEmploi, experience, remuneration, langue, niveauEtude, dateExpiration, description, exigences } = req.body;
-        const updatedOffre = await Offre.findByIdAndUpdate(offreId, { titre, nbPoste, typeEmploi, experience, remuneration, langue, niveauEtude, dateExpiration, description, exigences }, { new: true });
+        const { titre, nbPoste, typeEmploi, experience, remuneration, langue, niveauEtude, dateExpiration, description, exigences ,idDomaine} = req.body;
+        const updatedOffre = await Offre.findByIdAndUpdate(offreId, { titre, nbPoste, typeEmploi, experience, remuneration, langue, niveauEtude, dateExpiration, description, exigences,idDomaine }, { new: true });
         if (!updatedOffre) {
             return res.status(404).json({ error: 'Offre not found' });
         }
@@ -60,6 +119,7 @@ const deleteOffre = async (req, res) => {
     try {
         const offreId = req.params.offreId;
         await Offre.findByIdAndDelete(offreId);
+        await Workflow.deleteMany({ offre_id: offreId });
         res.json({ message: 'Offre deleted successfully' });
     } catch (error) {
         console.error(error);

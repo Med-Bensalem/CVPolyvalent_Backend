@@ -12,7 +12,7 @@ router.get('/conditions/offer/:offreId', CondController.getConditionByOffer);
 router.get('/conditions/:id', CondController.getConditionById);
 
 // Route pour modifier un secteur
-router.put('/conditions/:id', CondController.updateCondition);
+router.put('/conditions/:offreId', CondController.updateCondition);
 
 // Route pour supprimer un secteur
 router.delete('/conditions/:id', CondController.deleteCondition);

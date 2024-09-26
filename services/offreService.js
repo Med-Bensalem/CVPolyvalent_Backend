@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:5000/api'; // Mettez l'URL de votre API
 const addOffre = async (userId, offreData) => {
     try {
         const response = await axios.post(`${API_URL}/users/${userId}/offres`, offreData);
-        return response.data;
+        return response;
     } catch (error) {
         console.error(error);
         throw new Error('Error adding offre ');
@@ -41,11 +41,10 @@ const deleteOffre = async (userId, offreId) => {
         const response = await axios.delete(`${API_URL}/users/${userId}/offres/${offreId}`);
         return response.data;
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting offre:', error);
         throw new Error('Error deleting offre');
     }
 };
-
 const getAllOffres = async () => {
     try {
         const response = await axios.get(`${API_URL}/offres`);
