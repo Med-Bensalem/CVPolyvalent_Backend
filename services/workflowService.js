@@ -13,6 +13,7 @@ const createWorkflow = async (offreId) => {
     }
 };
 
+// Obtenir un workflow par offreId
 const getWorkflowByOffreId = async (offreId) => {
     try {
         const response = await axios.get(`${API_URL}/workflows/${offreId}`);
@@ -23,4 +24,15 @@ const getWorkflowByOffreId = async (offreId) => {
     }
 };
 
-module.exports = { createWorkflow , getWorkflowByOffreId };
+// Obtenir une offre par workflowId
+const getOffreByWorkflowId = async (workflowId) => {
+    try {
+        const response = await axios.get(`${API_URL}/offre-by-workflow/${workflowId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error getting offer by workflowId:', error.response?.data || error.message);
+        throw new Error('Error getting offer');
+    }
+};
+
+module.exports = { createWorkflow, getWorkflowByOffreId, getOffreByWorkflowId };

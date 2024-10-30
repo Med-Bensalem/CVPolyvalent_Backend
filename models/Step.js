@@ -7,7 +7,10 @@ const stepSchema = new mongoose.Schema({
     adress: { type: String },
     meet: { type: String },
     dateEntretien: { type: Date },
-    stepType: {type: String},
+    stepType: {type: String,required: true},
+    testId: { type: String},
+    viewedTest: {type: Boolean},
+    uploadedTest: {type: Boolean},
 });
 
 // Use mongoose.models to check if the model is already defined

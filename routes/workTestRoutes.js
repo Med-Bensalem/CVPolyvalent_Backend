@@ -1,17 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const postuleController = require('../controllers/PostuleController');
-const {upload} = require("../controllers/PostuleController");
+const workController = require('../controllers/workTestController');
+const {upload} = require("../controllers/workTestController");
 
 
 
-// Route pour créer une nouvelle candidature à partir de fichiers
-router.post('/postule', upload.fields([{ name: 'cv', maxCount: 1 }, { name: 'lettreMotivation', maxCount: 1 }]), postuleController.createPostule);
-router.get('/users/:userId/postules', postuleController.getPostuleByUser);
-router.get('/offres/:offreId/postules', postuleController.getPostuleByOffer);
-router.put('/postule/update-status', postuleController.updatePostuleStatus);
-router.post('/postule/send-emails', postuleController.sendStatusChangeEmails);
+// Route pour créer une nouvelle work test  à partir de fichiers
+router.post('/workTest', upload.fields([{ name: 'workFile', maxCount: 1 }]), workController.createWorkTest);
 
+// Route for getting WorkTest by testId
+router.get('/workTest/:testId', workController.getWorkTestByTestId);
 
 
 module.exports = router;

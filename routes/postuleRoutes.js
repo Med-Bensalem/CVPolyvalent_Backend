@@ -11,6 +11,8 @@ router.get('/users/:userId/postules', postuleController.getPostuleByUser);
 router.get('/offres/:offreId/postules', postuleController.getPostuleByOffer);
 router.put('/postule/update-status', postuleController.updatePostuleStatus);
 router.post('/postule/send-emails', postuleController.sendStatusChangeEmails);
+// Route to get accepted postules
+router.get('/postules/accepted', postuleController.getAcceptedPostules);
 
 
 

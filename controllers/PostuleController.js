@@ -4,6 +4,9 @@ const Langue = require("../models/Langue");
 const User = require("../models/User");
 const {sendEmail} = require("../services/emailService");
 const Offre = require("../models/Offre");
+const Condition = require("../models/Condition");
+const mongoose = require("mongoose");
+const Step = require("../models/Step");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -26,12 +29,41 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 const createPostule = async (req, res) => {
     try {
-        const { userId, offreId, description,dateCreation,score} = req.body;
+        const { userId, offreId, description, dateCreation, score } = req.body;
         const cvPath = req.files['cv'][0].path;
         const lettreMotivationPath = req.files['lettreMotivation'][0].path;
 
-        const postule = new Postule({ cv: cvPath, lettreMotivation: lettreMotivationPath, userId, offreId, description,dateCreation,score});
+        const postule = new Postule({
+            cv: cvPath,
+            lettreMotivation: lettreMotivationPath,
+            userId,
+            offreId,
+            description,
+            dateCreation,
+            score
+        });
+
         await postule.save();
+
+        // Fetch the user to get the gender
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé." });
+        }
+
+        // Convert the string offreId to ObjectId
+        const objectIdOffreId = new mongoose.Types.ObjectId(offreId);
+
+        // Find the condition by offreId
+        const condition = await Condition.findOne({ offreId: objectIdOffreId });
+
+        // Check if condition exists before accessing its genre property
+        if (condition && user.gender === condition.genre) {
+            console.log("c'est kif kif ");
+            // Update the status to 1 if the gender matches
+            postule.status = 1;
+            await postule.save(); // Save the updated postule
+        }
 
         res.status(201).json(postule);
     } catch (err) {
@@ -39,6 +71,8 @@ const createPostule = async (req, res) => {
         res.status(500).json({ message: "Une erreur s'est produite lors de la création de la candidature." });
     }
 };
+
+
 
 const getPostuleByUser = async (req, res) => {
     try {
@@ -73,12 +107,38 @@ const updatePostuleStatus = async (req, res) => {
             return res.status(404).json({ message: 'Candidature non trouvée' });
         }
 
+
+
+        // Fetch steps based on the provided status
+        const steps = await Step.find({ step_order: status });
+
+
+        // Check if any steps were returned
+        if (steps.length > 0) {
+            const step = steps[0]; // Get the first step from the array
+
+
+            if (step.stepType === 'ACCEPTED') {
+                // Set postule.accepted to true
+                postule.accepted = true;
+
+            }
+        } else {
+            console.log('No steps found for the provided status.'); // Log if no steps were found
+        }
+
+        // Save the updated postule
+        await postule.save();
+
+
         res.status(200).json({ message: 'Statut mis à jour avec succès', postule });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erreur lors de la mise à jour du statut', error });
     }
 };
+
+
 
 const sendStatusChangeEmails = async (req, res) => {
     try {
@@ -109,7 +169,22 @@ const sendStatusChangeEmails = async (req, res) => {
 };
 
 
+const getAcceptedPostules = async (req, res) => {
+    try {
+        // Query the Postule collection for accepted postules
+        const acceptedPostules = await Postule.find({ accepted: true }).populate('userId');
+
+        // Return the retrieved accepted postules
+        res.json(acceptedPostules);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error getting accepted postules' });
+    }
+};
+
+
 
 
 // Exportez également la variable `upload`
-module.exports = { createPostule, upload,getPostuleByUser,getPostuleByOffer ,updatePostuleStatus,sendStatusChangeEmails};
+module.exports = { createPostule, upload,getPostuleByUser,getPostuleByOffer ,
+    updatePostuleStatus,sendStatusChangeEmails,getAcceptedPostules};

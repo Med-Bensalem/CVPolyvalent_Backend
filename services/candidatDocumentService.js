@@ -3,16 +3,16 @@ const axios = require('axios');
 const API_URL = 'http://localhost:5000/api'; // Mettez l'URL de votre API
 
 // Service pour créer une work test
-const createWorkTest = async (workFile,userId, testId, dateCreation,score) => {
+const createDocumentCandidat = async (workFile,documentId,candidatId, dateCreation) => {
     try {
         const formData = new FormData();
         formData.append('workFile', workFile);
-        formData.append('userId', userId);
-        formData.append('testId', testId);
+        formData.append('documentId', documentId);
+        formData.append('candidatId', candidatId);
         formData.append('dateCreation', dateCreation);
-        formData.append('score', score);
 
-        const response = await axios.post(`${API_URL}/workTest`, formData, {
+
+        const response = await axios.post(`${API_URL}/candidatDocuments`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -25,22 +25,18 @@ const createWorkTest = async (workFile,userId, testId, dateCreation,score) => {
     }
 };
 
-// Service pour obtenir une work test par testId
-const getWorkTestByTestId = async (testId) => {
+const getDocumentByUser = async (candidatId) => {
     try {
-        const response = await axios.get(`${API_URL}/workTest/${testId}`);
-        // The response now includes bestScore, minScore, countLessThan50, and workTests
-        const { bestScore, minScore, countLessThan50, workTests } = response.data;
-        return { bestScore, minScore, countLessThan50, workTests }; // Return the structured data
+        const response = await axios.get(`${API_URL}/documents/users/${candidatId}`);
+        return response.data;
     } catch (error) {
-        console.error('Erreur lors de la récupération de la work test:', error);
-        throw new Error('Erreur lors de la récupération de la work test');
+        console.error('Error getting conditions by offer:', error.response?.data || error.message);
+        throw new Error('Error getting conditions by offer');
     }
 };
 
 
-
 module.exports = {
-    createWorkTest,
-    getWorkTestByTestId
+    createDocumentCandidat,
+    getDocumentByUser
 };

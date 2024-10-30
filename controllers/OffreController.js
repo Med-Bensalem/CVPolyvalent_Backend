@@ -46,20 +46,7 @@ const addOffreToUser = async (req, res) => {
         });
 
         await newWorkflow.save();
-
-        // Step 3: Create the initial step (step 0)
-        const step0 = new Step({
-            workflow_id: newWorkflow._id,  // Use the _id from the newly created workflow
-            step_order: 0,
-            titre: "En Attente" ,
-            stepType: "PENDING"// Default title for step 0
-        });
-
-        await step0.save();
-
-
-
-        res.status(201).json({
+                res.status(201).json({
             message: 'Offre and Workflow added successfully',
             offre: newOffre,
             workflow: newWorkflow,

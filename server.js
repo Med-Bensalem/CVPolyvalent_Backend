@@ -26,9 +26,10 @@ const regionsRoutes = require('./routes/RegionRoutes');
 const scoresRoutes = require('./routes/ScoreRoutes');
 const testsRoutes = require('./routes/testRoutes');
 const domainesRoutes = require('./routes/domaineRoutes');
-
-
-
+const suggestionRoutes = require('./routes/suggestionProcessRoutes');
+const workTestRoutes = require('./routes/workTestRoutes');
+const docRoutes = require('./routes/documentRoutes');
+const candidatDocRoutes = require('./routes/candidatDocumentRoutes');
 
 
 
@@ -61,6 +62,10 @@ app.use('/api/regions', regionsRoutes);
 app.use('/api/scores', scoresRoutes);
 app.use('/api/tests', testsRoutes);
 app.use('/api/domaines', domainesRoutes);
+app.use('/api/suggestions',suggestionRoutes);
+app.use('/api/workTest', workTestRoutes);
+app.use('/api/documents', docRoutes);
+app.use('/api/candidatDocuments', candidatDocRoutes);
 
 
 app.use('/uploads', express.static('uploads'));

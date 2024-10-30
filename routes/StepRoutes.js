@@ -20,4 +20,10 @@ router.put('/steps/:id', stepController.updateStep);
 // Route to delete a step by its ID
 router.delete('/steps/:id', stepController.deleteStep);
 
+router.patch('/steps/:stepId/viewedtest', stepController.updateViewedTest);
+router.patch('/steps/:stepId/uploadedtest', stepController.updateUploadedTest);
+
+
+
+
 module.exports = router;

@@ -8,7 +8,8 @@ const postuleSchema = new mongoose.Schema({
     description: { type: String },
     dateCreation:{type:Date},
     score: { type: Number },
-    status: { type: Number, default: 0 }
+    status: { type: Number, default: 0 },
+    accepted: { type: Boolean, default: false },
 
 });
 

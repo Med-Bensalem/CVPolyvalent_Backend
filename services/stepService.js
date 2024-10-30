@@ -68,4 +68,25 @@ const deleteStep = async (id) => {
     }
 };
 
-module.exports = { createStep, getStepsByWorkflowId, getStepById, updateStep, deleteStep ,getStepsEntrepriseByWorkflowId};
+// Modifier le champ viewedtest à true
+const updateViewedTest = async (stepId) => {
+    try {
+        const response = await axios.patch(`${API_URL}/steps/${stepId}/viewedtest`);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating viewedtest:', error.response?.data || error.message);
+        throw new Error('Error updating viewedtest');
+    }
+};
+
+const updateUploadedTest = async (stepId) => {
+    try {
+        const response = await axios.patch(`${API_URL}/steps/${stepId}/uploadedtest`);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating viewedtest:', error.response?.data || error.message);
+        throw new Error('Error updating viewedtest');
+    }
+};
+
+module.exports = { createStep, getStepsByWorkflowId, getStepById, updateStep, deleteStep ,getStepsEntrepriseByWorkflowId,updateViewedTest,updateUploadedTest};

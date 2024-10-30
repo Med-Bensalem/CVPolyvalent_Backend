@@ -2,16 +2,19 @@ const mongoose = require('mongoose');
 
 // Define the schema for steps
 const StepsSchema = new mongoose.Schema({
-    id_steps: {
-        type: String, // Unique identifier for the step
-        required: true,
-        unique: true // Ensuring that each step has a unique ID
-    },
-    order: {
+    step_order: {
         type: Number,
         required: true // Order of the step
     },
     titre: {
+        type: String,
+        required: true // Title of the step
+    },
+    workflow_id: {
+        type: String,
+        required: true // Title of the step
+    },
+    stepType: {
         type: String,
         required: true // Title of the step
     }
@@ -20,8 +23,7 @@ const StepsSchema = new mongoose.Schema({
 // Define the schema for suggestion_process
 const SuggestionProcessSchema = new mongoose.Schema({
     id_domaine: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Domaine', // Reference to the Domaine model
+        type: String,
         required: true // Ensure id_domaine is provided
     },
     steps: [StepsSchema] // Array of step objects

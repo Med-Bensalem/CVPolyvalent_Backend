@@ -124,10 +124,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Mise à jour des champs spécifiés de l'utilisateur
+const fs = require('fs');
+const path = require('path');
+
 const completeProfile = async (req, res) => {
     try {
-        const { adress, dateOfBirth, dateDispo, gender, phone, contrat,poste } = req.body;
+        const { adress, dateOfBirth, dateDispo, gender, phone, contrat, poste } = req.body;
         const { userId } = req.params;
 
         // Recherche de l'utilisateur dans la base de données
@@ -143,10 +145,25 @@ const completeProfile = async (req, res) => {
         user.gender = gender;
         user.phone = phone;
         user.contrat = contrat;
-        user.poste=poste;
+        user.poste = poste;
 
-        // Si une image a été téléchargée, enregistrez son URL dans le profil de l'utilisateur
+        // Si une nouvelle image a été téléchargée
         if (req.file) {
+            // Check if there is an existing image
+            if (user.image) {
+                // Delete the old image file only if it exists
+                const oldImagePath = path.join(__dirname, '..', user.image); // Adjust the path as needed
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlink(oldImagePath, (err) => {
+                        if (err) {
+                            console.error("Failed to delete old image:", err);
+                        }
+                    });
+                } else {
+                    console.warn("Old image not found, skipping deletion:", oldImagePath);
+                }
+            }
+            // Save the new image URL in the user's profile
             user.image = '/uploads/' + req.file.filename; // Assuming the images are stored in the 'uploads' directory
         }
 
@@ -159,6 +176,7 @@ const completeProfile = async (req, res) => {
         res.status(500).send("Error updating profile");
     }
 };
+
 
 const approveUser = async (req, res) => {
     const userId = req.params.userId;

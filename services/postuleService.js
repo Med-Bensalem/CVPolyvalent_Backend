@@ -75,10 +75,21 @@ const sendStatusChangeEmails = async (postuleIds) => {
     }
 };
 
+const getAcceptedPostules = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/postules/accepted`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Erreur lors de la récupération des candidatures acceptées');
+    }
+};
+
 module.exports = {
     createPostule,
     getPostulesByUser,
     getPostulesByOffer,
     updatePostuleStatus,
-    sendStatusChangeEmails // Export the email sending function
+    sendStatusChangeEmails,// Export the email sending function
+    getAcceptedPostules
 };

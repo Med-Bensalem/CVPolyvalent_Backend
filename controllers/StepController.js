@@ -3,59 +3,93 @@ const Step = require('../models/step'); // Adjust the path as needed
 // Ajouter un step avec auto-incrémentation pour step_order
 const addStep = async (req, res) => {
     try {
-        const { workflow_id, titre, adress, meet, dateEntretien, stepType } = req.body;
+        const { workflow_id, titre, adress, meet, dateEntretien, stepType, testId } = req.body;
 
-        // Ajouter le nouveau step
-        const lastStep = await Step.findOne({ workflow_id }).sort('-step_order');
-        const step_order = lastStep ? lastStep.step_order + 1 : 1;
+        // Validation: Ensure testId is provided for TEST steps
+        if (stepType === 'TEST' && !testId) {
+            return res.status(400).json({ error: 'testId is required for TEST steps' });
+        }
 
-        const newStep = new Step({ workflow_id, titre, adress, meet, dateEntretien, step_order, stepType });
+        // Fetch existing steps for the workflow
+        const existingSteps = await Step.find({ workflow_id }).sort('step_order');
+        let step_order = existingSteps.length + 1;
+
+        // Check if "EN ATTENTE" step exists; if not, create it as the first step
+        let pendingStep = await Step.findOne({ workflow_id, stepType: 'PENDING' });
+        if (!pendingStep) {
+            pendingStep = new Step({
+                workflow_id,
+                titre: 'En attente', // Pending step title
+                step_order: 0,
+                stepType: 'PENDING' // Assuming "PENDING" is the type for "En attente"
+            });
+            await pendingStep.save();
+        }
+
+        // Add the new step after "EN ATTENTE"
+        const newStepData = {
+            workflow_id,
+            titre,
+            adress,
+            meet,
+            dateEntretien,
+            step_order,
+            stepType,
+        };
+        if (stepType === 'TEST') {
+            newStepData.testId = testId;
+            newStepData.viewedTest = false;
+            newStepData.uploadedTest = false;
+        }
+
+        const newStep = new Step(newStepData);
         await newStep.save();
 
-        // Vérifier si un step 'Refusé' existe déjà pour ce workflow_id
-        const refuseStep = await Step.findOne({ workflow_id, stepType: 'REJECTED' });
+        // Add "REJECTED" and "ACCEPTED" steps at the end of the workflow sequence
+        step_order += 1;
 
-        if (refuseStep) {
-            // Mettre à jour le step 'Refusé' avec le step_order du nouveau step
-            refuseStep.step_order = step_order + 1;
-            await refuseStep.save();
+        // Fetch or create the "REJECTED" step
+        let rejectedStep = await Step.findOne({ workflow_id, stepType: 'REJECTED' });
+        if (rejectedStep) {
+            rejectedStep.step_order = step_order;
+            await rejectedStep.save();
         } else {
-            // Ajouter un step 'Refusé' avec le step_order du nouveau step + 1
-            const refuseStepOrder = step_order + 1;
-            const newRefuseStep = new Step({
+            rejectedStep = new Step({
                 workflow_id,
                 titre: 'Refusé',
-                step_order: refuseStepOrder,
-                stepType: 'REJECTED'
+                step_order: step_order,
+                stepType: 'REJECTED',
             });
-            await newRefuseStep.save();
+            await rejectedStep.save();
         }
 
-        // Vérifier si un step 'Accepté' existe déjà pour ce workflow_id
-        const acceptStep = await Step.findOne({ workflow_id, stepType: 'ACCEPTED' });
-
-        if (acceptStep) {
-            // Mettre à jour le step 'Accepté' avec le step_order du dernier step + 2 (après 'Refusé')
-            acceptStep.step_order = step_order + 2;
-            await acceptStep.save();
+        // Fetch or create the "ACCEPTED" step, positioned after "REJECTED"
+        step_order += 1;
+        let acceptedStep = await Step.findOne({ workflow_id, stepType: 'ACCEPTED' });
+        if (acceptedStep) {
+            acceptedStep.step_order = step_order;
+            await acceptedStep.save();
         } else {
-            // Ajouter un step 'Accepté' avec le step_order du dernier step + 2
-            const acceptStepOrder = step_order + 2;
-            const newAcceptStep = new Step({
+            acceptedStep = new Step({
                 workflow_id,
                 titre: 'Accepté',
-                step_order: acceptStepOrder,
-                stepType: 'ACCEPTED'
+                step_order: step_order,
+                stepType: 'ACCEPTED',
             });
-            await newAcceptStep.save();
+            await acceptedStep.save();
         }
 
-        res.status(201).json({ message: 'Steps added successfully', step: newStep });
+        res.status(201).json({
+            message: 'Steps added successfully with PENDING, REJECTED, and ACCEPTED steps ensured',
+            addedSteps: [pendingStep, newStep, rejectedStep, acceptedStep]
+        });
     } catch (error) {
         console.error('Error adding steps:', error);
         res.status(500).json({ error: 'Error adding steps' });
     }
 };
+
+
 
 
 
@@ -122,6 +156,23 @@ const getStepById = async (req, res) => {
         res.status(500).json({ error: 'Error getting step' });
     }
 };
+
+const getStepByStatus = async (req, res) => {
+    try {
+        const { status } = req.params; // On récupère le statut depuis les paramètres de la requête
+        const steps = await Step.find({ status }); // Recherche des étapes ayant le statut spécifié
+
+        if (steps.length === 0) {
+            return res.status(404).json({ error: 'No steps found with the specified status' });
+        }
+
+        res.status(200).json(steps); // Renvoie les étapes trouvées
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error getting steps by status' });
+    }
+};
+
 
 // Modifier un step
 const updateStep = async (req, res) => {
@@ -194,6 +245,55 @@ const updateStepOrder = async (req, res) => {
     }
 };
 
+// Modifier le champ viewedtest à true
+const updateViewedTest = async (req, res) => {
+    try {
+        const { stepId } = req.params; // Assurez-vous d'envoyer l'ID du step
+        // Mettre à jour le champ viewedtest à true
+        const updatedStep = await Step.findByIdAndUpdate(
+            stepId,
+            { viewedTest: true },
+            { new: true } // Retourner le document mis à jour
+        );
+
+        if (!updatedStep) {
+            return res.status(404).json({ error: 'Step not found' });
+        }
+
+        res.status(200).json({ message: 'Step updated successfully', step: updatedStep });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error updating step viewedtest' });
+    }
+};
+
+// Modifier le champ uploadedtest à true
+const updateUploadedTest = async (req, res) => {
+    try {
+        const { stepId } = req.params; // Assurez-vous d'envoyer l'ID du step
+        // Mettre à jour le champ viewedtest à true
+        const updatedStep = await Step.findByIdAndUpdate(
+            stepId,
+            { uploadedTest: true },
+            { new: true } // Retourner le document mis à jour
+        );
+
+        if (!updatedStep) {
+            return res.status(404).json({ error: 'Step not found' });
+        }
+
+        res.status(200).json({ message: 'Step updated successfully', step: updatedStep });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error updating step viewedtest' });
+    }
+};
 
 
-module.exports = { addStep, getStepsByWorkflowId, getStepById, updateStep, deleteStep ,updateStepOrder,getStepsEntrepriseByWorkflowId};
+
+
+module.exports = {
+    addStep, getStepsByWorkflowId, getStepById, updateStep,
+    deleteStep ,updateStepOrder,getStepsEntrepriseByWorkflowId,
+    updateViewedTest,updateUploadedTest
+};
